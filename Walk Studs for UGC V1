@@ -1,0 +1,198 @@
+-- 📜 AutoTeleporterWithNeonGlow.local.lua
+-- Version + YouTube channel with neon pulsing effect + Toggle menu
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+----------------------------------------------------
+-- TELEPORT LOCATIONS
+----------------------------------------------------
+local checkpoints = {
+	Vector3.new(250.49, 3.82, 0.80),
+	Vector3.new(500.56, 3.82, 1.87),
+	Vector3.new(1000.26, 3.82, -1.43),
+	Vector3.new(2500.53, 2.41, -2.36),
+	Vector3.new(5000.56, 2.41, -1.26),
+	Vector3.new(10000.17, 2.41, 0.50),
+	Vector3.new(25000.21, 4.00, -1.55),
+	Vector3.new(50000.48, 4.00, -1.26),
+	Vector3.new(75001.62, 4.00, 0.53),
+	Vector3.new(93268.41, 4.00, 4.51),
+	Vector3.new(93292.22, 3.94, 13.56)
+}
+
+local running = false
+
+local function safeTeleport(pos)
+	local char = player.Character or player.CharacterAdded:Wait()
+	local humanoid = char:WaitForChild("Humanoid")
+	local root = char:WaitForChild("HumanoidRootPart")
+
+	humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+	root.Anchored = true
+
+	root.CFrame = CFrame.new(pos + Vector3.new(0, 4, 0))
+	task.wait(0.2)
+	root.Anchored = false
+	humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+end
+
+local function startTeleporting(loopCount, delayTime)
+	if running then return end
+	running = true
+
+	for i = 1, loopCount do
+		if not running then break end
+		for _, pos in ipairs(checkpoints) do
+			if not running then break end
+			safeTeleport(pos)
+			task.wait(delayTime)
+		end
+	end
+	running = false
+end
+
+local function stopTeleporting()
+	running = false
+end
+
+----------------------------------------------------
+-- GUI CREATION
+----------------------------------------------------
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- Toggle Button
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Parent = ScreenGui
+ToggleButton.Size = UDim2.new(0, 120, 0, 40)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.05, 0)
+ToggleButton.Text = "Show Menu"
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 16
+ToggleButton.TextColor3 = Color3.fromRGB(255,255,255)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+ToggleButton.AutoButtonColor = true
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,12)
+corner.Parent = ToggleButton
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 280, 0, 210)
+Frame.Position = UDim2.new(0.1,0,0.2,0)
+Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Frame.Visible = false
+Frame.Active = true
+Frame.Draggable = true
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0,12)
+frameCorner.Parent = Frame
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Parent = Frame
+Title.Size = UDim2.new(1,0,0,30)
+Title.BackgroundTransparency = 1
+Title.Text = "⚡ Auto Teleporter"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+
+-- Loop Box
+local LoopBox = Instance.new("TextBox")
+LoopBox.Parent = Frame
+LoopBox.Size = UDim2.new(0,240,0,30)
+LoopBox.Position = UDim2.new(0,20,0,40)
+LoopBox.PlaceholderText = "Enter loops"
+LoopBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+LoopBox.TextColor3 = Color3.fromRGB(255,255,255)
+
+-- Delay Box
+local DelayBox = Instance.new("TextBox")
+DelayBox.Parent = Frame
+DelayBox.Size = UDim2.new(0,240,0,30)
+DelayBox.Position = UDim2.new(0,20,0,80)
+DelayBox.PlaceholderText = "Delay in seconds"
+DelayBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+DelayBox.TextColor3 = Color3.fromRGB(255,255,255)
+
+-- Start/Stop buttons
+local StartButton = Instance.new("TextButton")
+StartButton.Parent = Frame
+StartButton.Size = UDim2.new(0,100,0,35)
+StartButton.Position = UDim2.new(0,20,0,130)
+StartButton.Text = "▶ Start"
+StartButton.BackgroundColor3 = Color3.fromRGB(0,200,0)
+StartButton.TextColor3 = Color3.fromRGB(255,255,255)
+StartButton.Font = Enum.Font.GothamBold
+StartButton.TextSize = 16
+
+local StopButton = Instance.new("TextButton")
+StopButton.Parent = Frame
+StopButton.Size = UDim2.new(0,100,0,35)
+StopButton.Position = UDim2.new(0,160,0,130)
+StopButton.Text = "⛔ Stop"
+StopButton.BackgroundColor3 = Color3.fromRGB(200,0,0)
+StopButton.TextColor3 = Color3.fromRGB(255,255,255)
+StopButton.Font = Enum.Font.GothamBold
+StopButton.TextSize = 16
+
+-- Version + YT with neon glow
+local VersionLabel = Instance.new("TextLabel")
+VersionLabel.Parent = Frame
+VersionLabel.Size = UDim2.new(1,0,0,20)
+VersionLabel.Position = UDim2.new(0,0,0,175)
+VersionLabel.BackgroundTransparency = 1
+VersionLabel.Text = "Version: 1.0 | YT: Binary Battles"
+VersionLabel.Font = Enum.Font.GothamBold
+VersionLabel.TextSize = 14
+VersionLabel.TextColor3 = Color3.fromRGB(0,255,255)
+
+----------------------------------------------------
+-- NEON PULSING EFFECT
+----------------------------------------------------
+local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local tweenGoal = {TextColor3 = Color3.fromRGB(0, 255, 200)} -- brighter cyan
+local tween = TweenService:Create(VersionLabel, tweenInfo, tweenGoal)
+tween:Play()
+
+----------------------------------------------------
+-- BUTTON EVENTS
+----------------------------------------------------
+ToggleButton.MouseButton1Click:Connect(function()
+	Frame.Visible = not Frame.Visible
+	ToggleButton.Text = Frame.Visible and "Hide Menu" or "Show Menu"
+end)
+
+StartButton.MouseButton1Click:Connect(function()
+	local loops = tonumber(LoopBox.Text)
+	local delayTime = tonumber(DelayBox.Text)
+	if loops and delayTime then
+		startTeleporting(loops, delayTime)
+	end
+end)
+
+StopButton.MouseButton1Click:Connect(stopTeleporting)
+
+----------------------------------------------------
+-- * KEY START/STOP
+----------------------------------------------------
+UIS.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.KeyCode == Enum.KeyCode.KeypadMultiply then
+		if running then
+			stopTeleporting()
+		else
+			local loops = tonumber(LoopBox.Text)
+			local delayTime = tonumber(DelayBox.Text)
+			if loops and delayTime then
+				startTeleporting(loops, delayTime)
+			end
+		end
+	end
+end)
